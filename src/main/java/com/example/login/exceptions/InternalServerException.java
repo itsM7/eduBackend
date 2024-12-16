@@ -6,6 +6,7 @@ import org.springframework.security.core.AuthenticationException;
 
 //500
 public class InternalServerException extends AuthenticationException{
+
     public InternalServerException(String message) {
         super(message);
     }
