@@ -1,10 +1,11 @@
 package com.example.login.dto.request;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
-@Value
 @Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RegisterRequest {
     String username;
     String email;

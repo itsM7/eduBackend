@@ -28,9 +28,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request) {
-        String username = userService.authenticateUser(request);
-        String tokenResponse = userService.generateToken(username);
-        return ResponseEntity.ok(tokenResponse);
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+
+        //test
+        System.out.println(loginRequest);
+
+        String tokenResponse = userService.authenticateUser(loginRequest);
+
+        System.out.println("Token generated successfully for user: " + loginRequest.getUsername());
+
+        return ResponseEntity.ok("Login successful! Token: " + tokenResponse);
     }
 }

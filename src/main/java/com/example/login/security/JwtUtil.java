@@ -3,29 +3,33 @@ package com.example.login.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
 import java.util.Date;
 import java.util.function.Function;
-
 import org.springframework.stereotype.Component;
+import io.jsonwebtoken.security.Keys;
+import java.security.Key;
 
 @Component
 public class JwtUtil {
-    private final String SECRET_KEY = "secret"; // استخدم مفتاحًا قويًا وآمنًا
 
-    // توليد التوكن
-    public String generateToken(String email) {
+    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+    public String generateToken(String username) {
         return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 ساعات
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // ساعة واحدة
+                .signWith(SECRET_KEY) // استخدام المفتاح الآمن
                 .compact();
     }
 
     // استخراج البيانات من التوكن
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
+        final Claims claims = Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
         return claimsResolver.apply(claims);
     }
 
