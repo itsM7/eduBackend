@@ -4,6 +4,7 @@ import com.example.login.dto.request.LoginRequest;
 import com.example.login.dto.request.RegisterRequest;
 import com.example.login.service.UserService;
 import com.example.login.security.JwtUtil;
+import com.example.login.service.impl.UserServiceImpl;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public AuthController(@NonNull UserService userService,@NonNull JwtUtil jwtUtil ) {
+    public AuthController(@NonNull UserService userService, @NonNull JwtUtil jwtUtil, UserServiceImpl userServiceImpl) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
     }
@@ -29,14 +30,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-
-        //test
-        System.out.println(loginRequest);
-
         String tokenResponse = userService.authenticateUser(loginRequest);
-
-        System.out.println("Token generated successfully for user: " + loginRequest.getUsername());
-
-        return ResponseEntity.ok("Login successful! Token: " + tokenResponse);
+        return ResponseEntity.ok("Login successful! Token: " + jwtUtil.extractEmail(tokenResponse));
     }
 }

@@ -18,12 +18,12 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // ساعة واحدة
-                .signWith(SECRET_KEY) // استخدام المفتاح الآمن
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // 1h
+                .signWith(SECRET_KEY)
                 .compact();
     }
 
-    // استخراج البيانات من التوكن
+    // Extract data from token
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)

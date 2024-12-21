@@ -31,7 +31,6 @@ public class UserServiceImpl implements UserService {
         if (registerRequest.getUsername() == null || registerRequest.getEmail() == null || registerRequest.getPassword() == null) {
             throw new BadRequestException("Username, email, and password are required.");
         }
-
         // check if already exists
         if (userRepository.findByEmailOrUsername(registerRequest.getEmail(), registerRequest.getUsername()).isPresent()) {
             throw new BadRequestException("User already exists");
@@ -40,6 +39,8 @@ public class UserServiceImpl implements UserService {
         // hash
         String encryptedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
+
+        // or use allargsCons
         UserEntity user = new UserEntity();
         user.setEmail(registerRequest.getEmail());
         user.setUsername(registerRequest.getUsername());
@@ -52,11 +53,8 @@ public class UserServiceImpl implements UserService {
     // Authenticate user
     @Override
     public String authenticateUser(@NonNull LoginRequest loginRequest) {
-        System.out.println("Searching for user: " + loginRequest.getUsername() + " or " + loginRequest.getEmail());
 
-        UserEntity user = null;
-
-        // البحث عن المستخدم بواسطة username أو email
+        UserEntity user;
         if (loginRequest.getUsername() != null) {
             user = userRepository.findByUsername(loginRequest.getUsername())
                     .orElseThrow(() -> new BadRequestException("User not found"));
@@ -66,14 +64,9 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new BadRequestException("Username or email must be provided");
         }
-
-        System.out.println("Checking password...");
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            System.out.println("Incorrect password for user: " + user.getUsername());
             throw new BadRequestException("Invalid password");
         }
-
-        System.out.println("Password matched successfully!");
         return jwtUtil.generateToken(user.getUsername());
     }
 
@@ -91,7 +84,7 @@ public class UserServiceImpl implements UserService {
 
 //    @Override
 //    public void authenticateUser(@NonNull LoginRequest loginRequest){
-//        userRepository.findByEmailOrUsername(loginRequest.getUsernameOrEmail(), loginRequest.getUsernameOrEmail())
+//        userRepository.findByEmail(loginRequest.getUsernameOrEmail())
 //               .ifPresentOrElse(
 //                user -> validatePassword(loginRequest),
 //                       () ->  new BadRequestException("User not found"));

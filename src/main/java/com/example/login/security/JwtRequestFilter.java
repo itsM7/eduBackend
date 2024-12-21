@@ -23,8 +23,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        // Skip JWT filtering for /api/login
-        if (request.getServletPath().equals("/api/login")) {
+        final String requestURI = request.getRequestURI();
+        System.out.println("Request URI: " + requestURI);
+
+        // استثناء المسارات التي لا تتطلب التحقق من التوكن
+        if (requestURI.contains("/api/login") ||
+                requestURI.contains("/api/register") ||
+                requestURI.contains("/api/resetPassword")) {
+            System.out.println("Bypassing JWT filter for: " + requestURI);
             chain.doFilter(request, response);
             return;
         }
@@ -34,17 +40,22 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String email = null;
         String jwt = null;
 
+        // استخراج التوكن من الـ Header
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
             email = jwtUtil.extractEmail(jwt);
         }
 
+        // تحقق من صحة التوكن وإعداد السياق الأمني
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtUtil.isTokenValid(jwt, email)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         email, null, null);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println("JWT validated successfully for: " + email);
+            } else {
+                System.out.println("Invalid JWT token for: " + email);
             }
         }
 
